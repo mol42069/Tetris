@@ -187,6 +187,21 @@ def next_block():
     return next_b
 
 
+def check_possible(block, direction):
+    global recs
+    try:
+        this = block[0][direction[0]]
+    except IndexError:
+        this = block[0][direction[1]]
+    for tile in this:
+        if tile[0] < 1 or tile[0] > 16 or tile[1] < 1 or tile[1] > 9:
+            return True
+        if recs[tile[0]][tile[1]].is_full:
+            return True
+
+    return False
+
+
 def engine(root, block, prev, direction):
     global running, recs
     co_block = block[0][direction[0]]
@@ -195,25 +210,27 @@ def engine(root, block, prev, direction):
         for r in rec:
             if not r.is_full:
                 r.draw(root, blank_tile, True, False)
+
     try:
         for tile in co_block:
-            if not recs[tile[0]][tile[1]].is_full:                      # we check if the tile below is full
+            if not recs[tile[0]][tile[1]].is_full:                     # we check if the tile below is full
                 i -= 1
+
     except IndexError:
-        for t in prev:                                                  # we delete the previous block
+        for t in prev:                                                 # we delete the previous block
             recs[t[0]][t[1]].draw(root, block[1], False, False)
         return True
 
     if prev is not None:
-        if i == 0:                                                      # if so we make the block actually say 'full'
-            for tile in prev:                                           # we delete the previous block
+        if i == 0:                                                     # if so we make the block actually say 'full'
+            for tile in prev:                                          # we delete the previous block
                 recs[tile[0]][tile[1]].draw(root, block[1], True, False)
             for tile in co_block:
                 recs[tile[0]][tile[1]].draw(root, block[1], False, True)
             return False
 
-        else:                                                           # if it isn`t full we draw but not save the tile
-            for tile in prev:                                           # we delete the previous block
+        else:                                                       # if it isn`t full we draw but not save the tile
+            for tile in prev:                                       # we delete the previous block
                 recs[tile[0]][tile[1]].draw(root, block[1], False, False)
             return True
 
@@ -257,10 +274,11 @@ def lr_movement(root, block, left, prev, direction):
                 tile[1] += 1
             in_dir.append(tile)
         n_block.append(in_dir)
-    block[0] = n_block
-    engine(root, block, prev, direction)
-
-    return block
+    block_moved = [n_block, block[1]]
+    if check_possible(block_moved, direction):
+        return block
+    else:
+        return block_moved
 
 # MAIN
 
@@ -277,19 +295,36 @@ def main():
     direction = [0, 0]
     prev_block = None
     n_block = next_block()
-
+    last_dir = None
     while running:
         now_time = time.time()
 
         if now_time - start_time > delay:
-            prev_block = copy.deepcopy(this_block[0][direction[1]])
+            prev_block = copy.deepcopy(this_block[0][direction[0]])
+            direction[1] = copy.deepcopy(direction[0])
             this_block = move_block(this_block)
             start_time = time.time()
+            if engine(root, this_block, prev_block, direction):  # if the block is placed we swap the
+                prev_block = None
+                this_block = n_block
+                n_block = next_block()
 
-        if engine(root, this_block, prev_block, direction):       # if the block is placed we swap the
-            prev_block = None
-            this_block = n_block
-            n_block = next_block()                                      # we get the next block
+        if check_possible(this_block, direction):
+            if last_dir:
+                if direction[0] == 0:
+                    direction[0] = 3
+                else:
+                    direction[0] -= 1
+            else:
+                if direction[0] == 3:
+                    direction[0] = 0
+                else:
+                    direction[0] += 1
+
+        else:
+            engine(root, this_block, prev_block, direction)
+
+        last_dir = None
 
         for event in pygame.event.get():                                # we go over all events
             match event.type:                                           # and we use match|case on the events
@@ -319,15 +354,17 @@ def main():
                             if is_possible:
                                 this_block = lr_movement(root, this_block, False, prev_block, direction)
                         case pygame.K_w:                                # rotate right
+                            last_dir = True
                             if direction[0] < 3:
                                 direction[0] += 1
                             else:
                                 direction[0] = 0
                         case pygame.K_s:                                # rotate left
-                            if direction[0] > 3:
+                            last_dir = False
+                            if direction[0] == 0:
                                 direction[0] -= 1
                             else:
-                                direction[0] = 0
+                                direction[0] = 3
                         case pygame.K_SPACE:                            # fast down
                             pass
 
