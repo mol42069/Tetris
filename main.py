@@ -1,5 +1,5 @@
 import time
-
+import copy
 import pygame
 import random as rnd
 from enum import Enum
@@ -76,12 +76,12 @@ class Block(Enum):
 class Rectangle:
     def __init__(self, root, x, y):
         self.is_full = False
-        self.x = int(x * 60 + 1) + 5
-        self.y = int(y * 60 + 1) + 5
-        self.width = 58
-        self.height = 58
+        self.x = int(x * 60) + 5
+        self.y = int(y * 60) + 5
+        self.width = 60
+        self.height = 60
         self.rect = (self.x, self.y, self.width, self.height)
-        pygame.draw.rect(root, Color.Black.value, self.rect)
+        root.blit(blank_tile, self.rect)
 
     def draw(self, root, sprite, clear=False, falling=True):
         if falling:
@@ -90,7 +90,7 @@ class Rectangle:
         else:
             if clear:
                 self.is_full = False
-                pygame.draw.rect(root, Color.Black.value, self.rect)
+                root.blit(blank_tile, self.rect)
             else:
                 self.is_full = True
 
@@ -108,12 +108,14 @@ light_blue_tile = pygame.image.load('./resources/light_Blue_tile.png')
 red_tile = pygame.image.load('./resources/Red_tile.png')
 yellow_tile = pygame.image.load('./resources/Yellow_tile.png')
 orange_tile = pygame.image.load('./resources/Orange_tile.png')
+blank_tile = pygame.image.load('./resources/Blank_tile.png')
 
 # GLOBAL VARIABLES
 
 screen_size = (1000, 1030)
 game_rect = (600, 1020)
 borders = 5
+running = True
 
 
 # init for game layout
@@ -151,108 +153,124 @@ def layout_init(root):
 
 
 def next_block():
-    i = rnd.randint(0, 7)
+    i = rnd.randint(0, 6)
+    middle = [
+        [[3, 0], [3, 0], [3, 0], [3, 0]],
+        [[3, 0], [3, 0], [3, 0], [3, 0]],
+        [[3, 0], [3, 0], [3, 0], [3, 0]],
+        [[3, 0], [3, 0], [3, 0], [3, 0]]
+    ]
 
     match i:
         case 0:
-            block = Block.Q_Block.value
+            block = copy.deepcopy(Block.Q_Block.value)
             color = yellow_tile
         case 1:
-            block = Block.I_Block.value
+            block = copy.deepcopy(Block.I_Block.value)
             color = light_blue_tile
         case 2:
-            block = Block.T_Block.value
+            block = copy.deepcopy(Block.T_Block.value)
             color = green_tile
         case 3:
-            block = Block.L1_Block.value
+            block = copy.deepcopy(Block.L1_Block.value)
             color = blue_tile
         case 4:
-            block = Block.L2_Block.value
+            block = copy.deepcopy(Block.L2_Block.value)
             color = orange_tile
         case 5:
-            block = Block.Z1_Block.value
+            block = copy.deepcopy(Block.Z1_Block.value)
             color = red_tile
         case 6:
-            block = Block.Z2_Block.value
+            block = copy.deepcopy(Block.Z2_Block.value)
             color = light_purple_tile
         case _:
-            block = Block.Q_Block.value
+            block = copy.deepcopy(Block.Q_Block.value)
             color = yellow_tile
+
     next_b = [block, color]
     return next_b
 
 
 def engine(root, block, prev, recs, direction):
+    global running
     co_block = block[0][direction[0]]
     i = len(co_block)
-
-    for tile in co_block:
-        try:
-            if not recs[tile[1]][tile[0]].is_full:                      # we check if the tile below is full
+    try:
+        for tile in co_block:
+            if not recs[tile[0]][tile[1]].is_full:                      # we check if the tile below is full
                 i -= 1
-        except IndexError:
-            try:
-                co_block = prev[0][direction[1]]                        # if so we make the block actually say 'full'
-                for t in co_block:                                      # we draw every tile
-                    recs[t[0]][t[1]].draw(root, block[1], False, False)
-                return True
-            except TypeError:
-                pass
+    except IndexError:
+        for t in prev:                                             # we delete the previous block
+            recs[t[0]][t[1]].draw(root, block[1], False, False)
+        return True
 
-    if i != 0:
-        try:
-            co_block = prev[0][direction[1]]                            # if so we make the block actually say 'full'
-            for tile in co_block:                                       # we draw every tile
-                recs[tile[0]][tile[1]].draw(root, block[1], False, False)
-            return True
-        except TypeError:
-            pass
-
-    else:                                                               # if it isn`t full we draw but not save the tile
-        try:
-            for tile in prev[0][direction[1]]:                          # we delete the previous block
-                recs[tile[0]][tile[1]].draw(root, block[1], True)
-            for tile in co_block:                                       # and draw the new block
+    if prev is not None:
+        if i == 0:                                                      # if so we make the block actually say 'full'
+            for tile in prev:                                           # we delete the previous block
+                recs[tile[0]][tile[1]].draw(root, block[1], True, False)
+            for tile in co_block:
                 recs[tile[0]][tile[1]].draw(root, block[1], False, True)
             return False
-        except TypeError:
-            pass
 
-    return False
+        else:                                                           # if it isn`t full we draw but not save the tile
+            for tile in prev:                                           # we delete the previous block
+                recs[tile[0]][tile[1]].draw(root, block[1], False, False)
+            return True
+
+    else:
+        if i == 0:
+            for tile in co_block:                                       # we draw every tile
+                recs[tile[0]][tile[1]].draw(root, block[1], False, True)
+            return False
+
+        else:
+            for tile in co_block:                                       # and draw the new block
+                recs[tile[0]][tile[1]].draw(root, block[1], False, False)
+                print('GAME OVER!!!')
+                running = False
+                return True
 
 
-def move_block(block, direction):
-    bl = block[0][direction[0]]
+def move_block(block):
+    bl = block[0]
     n_block = []
-    for tile in bl:
-        tile[0] += 0
-        tile[1] += 1
-        n_block.append(tile)
-
-    block[0][direction[0]] = n_block
+    for bn in bl:
+        in_dir = []
+        for tile in bn:
+            tile[0] += 1
+            tile[1] += 0
+            in_dir.append(tile)
+        n_block.append(in_dir)
+    block[0] = n_block
     return block
 
 # MAIN
 
 
 def main():
+    global running
     delay = 50
     root = pygame.display.set_mode(screen_size)                         # we make the window full screen
     root.fill(Color.Light_Grey.value)                                   # we make the background grey
-    running = True
+
     root, recs = layout_init(root)
     this_block = next_block()
     start_time = time.time()
-    direction = (0, 0)
+    direction = [0, 0]
     prev_block = None
     n_block = next_block()
     while running:
-        if time.time() - start_time > 10:
-            this_block = move_block(this_block, direction)
+        now_time = time.time()
+        print(now_time - start_time)
+
+        if now_time - start_time > 0.05:
+            prev_block = copy.deepcopy(this_block[0][direction[1]])
+            this_block = move_block(this_block)
             start_time = time.time()
 
         if engine(root, this_block, prev_block, recs, direction):       # if the block is placed we swap the
-            prev_block = this_block                                     # blocks ...
+            prev_block = None
+            direction[0] = direction[1]                                 # blocks ...
             this_block = n_block
             n_block = next_block()                                      # we get the next block
 
