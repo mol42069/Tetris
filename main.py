@@ -22,52 +22,52 @@ class Color(Enum):
 
 class Block(Enum):
     T_Block = [
-        [[0, 0], [1, 0], [2, 0], [1, 1]],        # normal
-        [[1, 0], [1, 1], [1, 2], [2, 2]],        # 1 x r | 2 x l
-        [[1, 1], [0, 2], [1, 2], [2, 2]],        # 2 x r | 2 x l
-        [[0, 0], [0, 1], [1, 1], [0, 2]]         # 3 x r | 1 x l
+        [[0, 0 + 4], [1, 0 + 4], [2, 0 + 4], [1, 1 + 4]],        # normal
+        [[1, 0 + 4], [1, 1 + 4], [1, 2 + 4], [2, 2 + 4]],        # 1 x r | 2 x l
+        [[1, 1 + 4], [0, 2 + 4], [1, 2 + 4], [2, 2 + 4]],        # 2 x r | 2 x l
+        [[0, 0 + 4], [0, 1 + 4], [1, 1 + 4], [0, 2 + 4]]         # 3 x r | 1 x l
     ]
 
     I_Block = [
-        [[0, 1], [1, 1], [2, 1], [3, 1]],        # normal
-        [[2, 0], [2, 1], [2, 2], [2, 3]],        # 1 x r | 2 x l
-        [[0, 2], [1, 2], [2, 2], [3, 2]],        # 2 x r | 2 x l
-        [[1, 0], [1, 1], [1, 2], [1, 3]]         # 3 x r | 1 x l
+        [[0, 1 + 4], [1, 1 + 4], [2, 1 + 4], [3, 1 + 4]],        # normal
+        [[2, 0 + 4], [2, 1 + 4], [2, 2 + 4], [2, 3 + 4]],        # 1 x r | 2 x l
+        [[0, 2 + 4], [1, 2 + 4], [2, 2 + 4], [3, 2 + 4]],        # 2 x r | 2 x l
+        [[1, 0 + 4], [1, 1 + 4], [1, 2 + 4], [1, 3 + 4]]         # 3 x r | 1 x l
     ]
 
     Z1_Block = [
-        [[0, 1], [1, 0], [1, 1], [2, 0]],        # normal
-        [[1, 0], [1, 1], [2, 1], [2, 3]],        # 1 x r | 3 x l
-        [[0, 1], [1, 0], [1, 1], [2, 0]],        # 2 x r | 2 x l
-        [[1, 0], [1, 1], [2, 1], [2, 3]]         # 3 x r | 1 x l
+        [[0, 1 + 4], [1, 0 + 4], [1, 1 + 4], [2, 0 + 4]],        # normal
+        [[1, 0 + 4], [1, 1 + 4], [2, 1 + 4], [2, 2 + 4]],        # 1 x r | 3 x l
+        [[0, 1 + 4], [1, 0 + 4], [1, 1 + 4], [2, 0 + 4]],        # 2 x r | 2 x l
+        [[1, 0 + 4], [1, 1 + 4], [2, 1 + 4], [2, 2 + 4]]         # 3 x r | 1 x l
     ]
 
     Z2_Block = [
-        [[0, 0], [1, 0], [1, 1], [2, 1]],        # normal
-        [[2, 0], [1, 1], [2, 1], [1, 3]],        # 1 x r | 3 x l
-        [[0, 0], [1, 0], [1, 1], [2, 1]],        # 2 x r | 2 x l
-        [[2, 0], [1, 1], [2, 1], [1, 3]]         # 3 x r | 1 x l
+        [[0, 0 + 4], [1, 0 + 4], [1, 1 + 4], [2, 1 + 4]],        # normal
+        [[2, 0 + 4], [1, 1 + 4], [2, 1 + 4], [1, 2 + 4]],        # 1 x r | 3 x l
+        [[0, 0 + 4], [1, 0 + 4], [1, 1 + 4], [2, 1 + 4]],        # 2 x r | 2 x l
+        [[2, 0 + 4], [1, 1 + 4], [2, 1 + 4], [1, 2 + 4]]         # 3 x r | 1 x l
     ]
 
     Q_Block = [
-        [[0, 0], [0, 1], [1, 0], [1, 1]],        # normal
-        [[0, 0], [0, 1], [1, 0], [1, 1]],        # 1 x r | 3 x l
-        [[0, 0], [0, 1], [1, 0], [1, 1]],        # 2 x r | 2 x l
-        [[0, 0], [0, 1], [1, 0], [1, 1]]         # 3 x r | 1 x l
+        [[0, 0 + 4], [0, 1 + 4], [1, 0 + 4], [1, 1 + 4]],        # normal
+        [[0, 0 + 4], [0, 1 + 4], [1, 0 + 4], [1, 1 + 4]],        # 1 x r | 3 x l
+        [[0, 0 + 4], [0, 1 + 4], [1, 0 + 4], [1, 1 + 4]],        # 2 x r | 2 x l
+        [[0, 0 + 4], [0, 1 + 4], [1, 0 + 4], [1, 1 + 4]]         # 3 x r | 1 x l
     ]
 
     L1_Block = [
-        [[1, 0], [1, 1], [1, 2], [2, 2]],        # normal
-        [[1, 1], [2, 1], [3, 1], [1, 2]],        # 1 x r | 3 x l
-        [[1, 1], [2, 1], [2, 2], [2, 3]],        # 2 x r | 2 x l
-        [[0, 2], [1, 2], [2, 2], [2, 1]],        # 3 x r | 1 x l
+        [[1, 0 + 4], [1, 1 + 4], [1, 2 + 4], [2, 2 + 4]],        # normal
+        [[1, 1 + 4], [2, 1 + 4], [3, 1 + 4], [1, 2 + 4]],        # 1 x r | 3 x l
+        [[1, 1 + 4], [2, 1 + 4], [2, 2 + 4], [2, 3 + 4]],        # 2 x r | 2 x l
+        [[0, 2 + 4], [1, 2 + 4], [2, 2 + 4], [2, 1 + 4]],        # 3 x r | 1 x l
     ]
 
     L2_Block = [
-        [[2, 0], [2, 1], [2, 2], [1, 2]],        # normal
-        [[1, 2], [2, 2], [3, 2], [1, 1]],        # 1 x r | 3 x l
-        [[1, 1], [2, 1], [1, 2], [1, 3]],        # 2 x r | 2 x l
-        [[0, 1], [1, 1], [2, 1], [2, 2]],        # 3 x r | 1 x l
+        [[2, 0 + 4], [2, 1 + 4], [2, 2 + 4], [1, 2 + 4]],        # normal
+        [[1, 2 + 4], [2, 2 + 4], [3, 2 + 4], [1, 1 + 4]],        # 1 x r | 3 x l
+        [[1, 1 + 4], [2, 1 + 4], [1, 2 + 4], [1, 3 + 4]],        # 2 x r | 2 x l
+        [[0, 1 + 4], [1, 1 + 4], [2, 1 + 4], [2, 2 + 4]],        # 3 x r | 1 x l
     ]
 
 
@@ -84,15 +84,17 @@ class Rectangle:
         root.blit(blank_tile, self.rect)
 
     def draw(self, root, sprite, clear=False, falling=True):
-        if falling:
-            root.blit(sprite, (self.x, self.y))
+        if not self.is_full:
+            if falling:
+                root.blit(sprite, (self.x, self.y))
 
-        else:
-            if clear:
-                self.is_full = False
-                root.blit(blank_tile, self.rect)
             else:
-                self.is_full = True
+                if clear:
+                    self.is_full = False
+                    root.blit(blank_tile, self.rect)
+                else:
+                    self.is_full = True
+                    root.blit(sprite, (self.x, self.y))
 
 
 # init:
@@ -116,13 +118,15 @@ screen_size = (1000, 1030)
 game_rect = (600, 1020)
 borders = 5
 running = True
-
+recs = []
 
 # init for game layout
+
 
 def layout_init(root):
 
     # Game Panel/middle Panel:
+    global recs
 
     x = borders
     y = (screen_size[1] - game_rect[1]) / 2
@@ -142,25 +146,17 @@ def layout_init(root):
 
     col = int(game_rect[0] / 60)
     row = int(game_rect[1] / 60)
-    recs = []
     for y in range(row):
         line = []
         for x in range(col):
             line.append(Rectangle(root, x, y))
         recs.append(line)
 
-    return root, recs
+    return root
 
 
 def next_block():
     i = rnd.randint(0, 6)
-    middle = [
-        [[3, 0], [3, 0], [3, 0], [3, 0]],
-        [[3, 0], [3, 0], [3, 0], [3, 0]],
-        [[3, 0], [3, 0], [3, 0], [3, 0]],
-        [[3, 0], [3, 0], [3, 0], [3, 0]]
-    ]
-
     match i:
         case 0:
             block = copy.deepcopy(Block.Q_Block.value)
@@ -191,16 +187,20 @@ def next_block():
     return next_b
 
 
-def engine(root, block, prev, recs, direction):
-    global running
+def engine(root, block, prev, direction):
+    global running, recs
     co_block = block[0][direction[0]]
     i = len(co_block)
+    for rec in recs:
+        for r in rec:
+            if not r.is_full:
+                r.draw(root, blank_tile, True, False)
     try:
         for tile in co_block:
             if not recs[tile[0]][tile[1]].is_full:                      # we check if the tile below is full
                 i -= 1
     except IndexError:
-        for t in prev:                                             # we delete the previous block
+        for t in prev:                                                  # we delete the previous block
             recs[t[0]][t[1]].draw(root, block[1], False, False)
         return True
 
@@ -236,7 +236,7 @@ def move_block(block):
     n_block = []
     for bn in bl:
         in_dir = []
-        for tile in bn:
+        for tile in bn:                                                 # we move blocks downwards
             tile[0] += 1
             tile[1] += 0
             in_dir.append(tile)
@@ -244,44 +244,92 @@ def move_block(block):
     block[0] = n_block
     return block
 
+
+def lr_movement(root, block, left, prev, direction):
+    bl = block[0]
+    n_block = []
+    for bn in bl:
+        in_dir = []
+        for tile in bn:
+            if left:
+                tile[1] -= 1
+            else:
+                tile[1] += 1
+            in_dir.append(tile)
+        n_block.append(in_dir)
+    block[0] = n_block
+    engine(root, block, prev, direction)
+
+    return block
+
 # MAIN
 
 
 def main():
-    global running
-    delay = 50
+    global running, recs
+    delay = 0.2
     root = pygame.display.set_mode(screen_size)                         # we make the window full screen
     root.fill(Color.Light_Grey.value)                                   # we make the background grey
 
-    root, recs = layout_init(root)
+    root = layout_init(root)
     this_block = next_block()
     start_time = time.time()
     direction = [0, 0]
     prev_block = None
     n_block = next_block()
+
     while running:
         now_time = time.time()
-        print(now_time - start_time)
 
-        if now_time - start_time > 0.05:
+        if now_time - start_time > delay:
             prev_block = copy.deepcopy(this_block[0][direction[1]])
             this_block = move_block(this_block)
             start_time = time.time()
 
-        if engine(root, this_block, prev_block, recs, direction):       # if the block is placed we swap the
+        if engine(root, this_block, prev_block, direction):       # if the block is placed we swap the
             prev_block = None
-            direction[0] = direction[1]                                 # blocks ...
             this_block = n_block
             n_block = next_block()                                      # we get the next block
-
-        # dsa
 
         for event in pygame.event.get():                                # we go over all events
             match event.type:                                           # and we use match|case on the events
                 case pygame.QUIT:
                     return
                 case pygame.KEYDOWN:                                    # we see if a key is pressed down
-                    pass
+
+                    # MOVEMENT input
+
+                    match event.key:
+                        case pygame.K_a:                                # move left
+                            is_possible = True
+                            for tile in this_block[0][direction[0]]:
+                                if not tile[1] - 1 < 1:
+                                    is_possible = True
+                                else:
+                                    is_possible = False
+                            if is_possible:
+                                this_block = lr_movement(root, this_block, True, prev_block, direction)
+                        case pygame.K_d:                               # move right
+                            is_possible = True
+                            for tile in this_block[0][direction[0]]:
+                                if not tile[1] + 1 > 9:
+                                    is_possible = True
+                                else:
+                                    is_possible = False
+                            if is_possible:
+                                this_block = lr_movement(root, this_block, False, prev_block, direction)
+                        case pygame.K_w:                                # rotate right
+                            if direction[0] < 3:
+                                direction[0] += 1
+                            else:
+                                direction[0] = 0
+                        case pygame.K_s:                                # rotate left
+                            if direction[0] > 3:
+                                direction[0] -= 1
+                            else:
+                                direction[0] = 0
+                        case pygame.K_SPACE:                            # fast down
+                            pass
 
                 case _:                                                 # default case
                     pass
