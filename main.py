@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import random as rnd
 from enum import Enum
@@ -19,54 +21,54 @@ class Color(Enum):
 # Blocks:
 
 class Block(Enum):
-    T_Block = (
-        ((0, 0), (1, 0), (2, 0), (1, 1)),        # normal
-        ((1, 0), (1, 1), (1, 2), (2, 2)),        # 1 x r | 2 x l
-        ((1, 1), (0, 2), (1, 2), (2, 2)),        # 2 x r | 2 x l
-        ((0, 0), (0, 1), (1, 1), (0, 2))         # 3 x r | 1 x l
-    )
+    T_Block = [
+        [[0, 0], [1, 0], [2, 0], [1, 1]],        # normal
+        [[1, 0], [1, 1], [1, 2], [2, 2]],        # 1 x r | 2 x l
+        [[1, 1], [0, 2], [1, 2], [2, 2]],        # 2 x r | 2 x l
+        [[0, 0], [0, 1], [1, 1], [0, 2]]         # 3 x r | 1 x l
+    ]
 
-    I_Block = (
-        ((0, 1), (1, 1), (2, 1), (3, 1)),        # normal
-        ((2, 0), (2, 1), (2, 2), (2, 3)),        # 1 x r | 2 x l
-        ((0, 2), (1, 2), (2, 2), (3, 2)),        # 2 x r | 2 x l
-        ((1, 0), (1, 1), (1, 2), (1, 3))         # 3 x r | 1 x l
-    )
+    I_Block = [
+        [[0, 1], [1, 1], [2, 1], [3, 1]],        # normal
+        [[2, 0], [2, 1], [2, 2], [2, 3]],        # 1 x r | 2 x l
+        [[0, 2], [1, 2], [2, 2], [3, 2]],        # 2 x r | 2 x l
+        [[1, 0], [1, 1], [1, 2], [1, 3]]         # 3 x r | 1 x l
+    ]
 
-    Z1_Block = (
-        ((0, 1), (1, 0), (1, 1), (2, 0)),        # normal
-        ((1, 0), (1, 1), (2, 1), (2, 3)),        # 1 x r | 3 x l
-        ((0, 1), (1, 0), (1, 1), (2, 0)),        # 2 x r | 2 x l
-        ((1, 0), (1, 1), (2, 1), (2, 3))         # 3 x r | 1 x l
-    )
+    Z1_Block = [
+        [[0, 1], [1, 0], [1, 1], [2, 0]],        # normal
+        [[1, 0], [1, 1], [2, 1], [2, 3]],        # 1 x r | 3 x l
+        [[0, 1], [1, 0], [1, 1], [2, 0]],        # 2 x r | 2 x l
+        [[1, 0], [1, 1], [2, 1], [2, 3]]         # 3 x r | 1 x l
+    ]
 
-    Z2_Block = (
-        ((0, 0), (1, 0), (1, 1), (2, 1)),        # normal
-        ((2, 0), (1, 1), (2, 1), (1, 3)),        # 1 x r | 3 x l
-        ((0, 0), (1, 0), (1, 1), (2, 1)),        # 2 x r | 2 x l
-        ((2, 0), (1, 1), (2, 1), (1, 3))         # 3 x r | 1 x l
-    )
+    Z2_Block = [
+        [[0, 0], [1, 0], [1, 1], [2, 1]],        # normal
+        [[2, 0], [1, 1], [2, 1], [1, 3]],        # 1 x r | 3 x l
+        [[0, 0], [1, 0], [1, 1], [2, 1]],        # 2 x r | 2 x l
+        [[2, 0], [1, 1], [2, 1], [1, 3]]         # 3 x r | 1 x l
+    ]
 
-    Q_Block = (
-        ((0, 0), (0, 1), (1, 0), (1, 1)),        # normal
-        ((0, 0), (0, 1), (1, 0), (1, 1)),        # 1 x r | 3 x l
-        ((0, 0), (0, 1), (1, 0), (1, 1)),        # 2 x r | 2 x l
-        ((0, 0), (0, 1), (1, 0), (1, 1))         # 3 x r | 1 x l
-    )
+    Q_Block = [
+        [[0, 0], [0, 1], [1, 0], [1, 1]],        # normal
+        [[0, 0], [0, 1], [1, 0], [1, 1]],        # 1 x r | 3 x l
+        [[0, 0], [0, 1], [1, 0], [1, 1]],        # 2 x r | 2 x l
+        [[0, 0], [0, 1], [1, 0], [1, 1]]         # 3 x r | 1 x l
+    ]
 
-    L1_Block = (
-        ((1, 0), (1, 1), (1, 2), (2, 2)),        # normal
-        ((1, 1), (2, 1), (3, 1), (1, 2)),        # 1 x r | 3 x l
-        ((1, 1), (2, 1), (2, 2), (2, 3)),        # 2 x r | 2 x l
-        ((0, 2), (1, 2), (2, 2), (2, 1)),        # 3 x r | 1 x l
-    )
+    L1_Block = [
+        [[1, 0], [1, 1], [1, 2], [2, 2]],        # normal
+        [[1, 1], [2, 1], [3, 1], [1, 2]],        # 1 x r | 3 x l
+        [[1, 1], [2, 1], [2, 2], [2, 3]],        # 2 x r | 2 x l
+        [[0, 2], [1, 2], [2, 2], [2, 1]],        # 3 x r | 1 x l
+    ]
 
-    L2_Block = (
-        ((2, 0), (2, 1), (2, 2), (1, 2)),        # normal
-        ((1, 2), (2, 2), (3, 2), (1, 1)),        # 1 x r | 3 x l
-        ((1, 1), (2, 1), (1, 2), (1, 3)),        # 2 x r | 2 x l
-        ((0, 1), (1, 1), (2, 1), (2, 2)),        # 3 x r | 1 x l
-    )
+    L2_Block = [
+        [[2, 0], [2, 1], [2, 2], [1, 2]],        # normal
+        [[1, 2], [2, 2], [3, 2], [1, 1]],        # 1 x r | 3 x l
+        [[1, 1], [2, 1], [1, 2], [1, 3]],        # 2 x r | 2 x l
+        [[0, 1], [1, 1], [2, 1], [2, 2]],        # 3 x r | 1 x l
+    ]
 
 
 # Class of the Rectangles
@@ -153,28 +155,28 @@ def next_block():
 
     match i:
         case 0:
-            block = Block.Q_Block
+            block = Block.Q_Block.value
             color = yellow_tile
         case 1:
-            block = Block.I_Block
+            block = Block.I_Block.value
             color = light_blue_tile
         case 2:
-            block = Block.T_Block
+            block = Block.T_Block.value
             color = green_tile
         case 3:
-            block = Block.L1_Block
+            block = Block.L1_Block.value
             color = blue_tile
         case 4:
-            block = Block.L2_Block
+            block = Block.L2_Block.value
             color = orange_tile
         case 5:
-            block = Block.Z1_Block
+            block = Block.Z1_Block.value
             color = red_tile
         case 6:
-            block = Block.Z2_Block
+            block = Block.Z2_Block.value
             color = light_purple_tile
         case _:
-            block = Block.Q_Block
+            block = Block.Q_Block.value
             color = yellow_tile
     next_b = [block, color]
     return next_b
@@ -182,18 +184,53 @@ def next_block():
 
 def engine(root, block, prev, recs, direction):
     co_block = block[0][direction[0]]
-    if recs[co_block[1]][co_block[0]].is_full:
-        co_block = prev[0][direction[1]]
-        for tile in co_block:
-            recs[tile[0]][tile[1]].draw(root, block[1], False, False)
+    i = len(co_block)
 
-    else:
-        for tile in prev[0][direction[1]]:
-            recs[tile[0]][tile[1]].draw(root, block[1], True)
-        for tile in co_block:
-            recs[tile[0]][tile[1]].draw(root, block[1], False, True)
+    for tile in co_block:
+        try:
+            if not recs[tile[1]][tile[0]].is_full:                      # we check if the tile below is full
+                i -= 1
+        except IndexError:
+            try:
+                co_block = prev[0][direction[1]]                        # if so we make the block actually say 'full'
+                for t in co_block:                                      # we draw every tile
+                    recs[t[0]][t[1]].draw(root, block[1], False, False)
+                return True
+            except TypeError:
+                pass
 
-    return
+    if i != 0:
+        try:
+            co_block = prev[0][direction[1]]                            # if so we make the block actually say 'full'
+            for tile in co_block:                                       # we draw every tile
+                recs[tile[0]][tile[1]].draw(root, block[1], False, False)
+            return True
+        except TypeError:
+            pass
+
+    else:                                                               # if it isn`t full we draw but not save the tile
+        try:
+            for tile in prev[0][direction[1]]:                          # we delete the previous block
+                recs[tile[0]][tile[1]].draw(root, block[1], True)
+            for tile in co_block:                                       # and draw the new block
+                recs[tile[0]][tile[1]].draw(root, block[1], False, True)
+            return False
+        except TypeError:
+            pass
+
+    return False
+
+
+def move_block(block, direction):
+    bl = block[0][direction[0]]
+    n_block = []
+    for tile in bl:
+        tile[0] += 0
+        tile[1] += 1
+        n_block.append(tile)
+
+    block[0][direction[0]] = n_block
+    return block
 
 # MAIN
 
@@ -205,10 +242,19 @@ def main():
     running = True
     root, recs = layout_init(root)
     this_block = next_block()
-
+    start_time = time.time()
+    direction = (0, 0)
+    prev_block = None
+    n_block = next_block()
     while running:
-        n_block = next_block()                                          # we get the next block
-        pygame.time.delay(delay)
+        if time.time() - start_time > 10:
+            this_block = move_block(this_block, direction)
+            start_time = time.time()
+
+        if engine(root, this_block, prev_block, recs, direction):       # if the block is placed we swap the
+            prev_block = this_block                                     # blocks ...
+            this_block = n_block
+            n_block = next_block()                                      # we get the next block
 
         # dsa
 
@@ -222,7 +268,6 @@ def main():
                 case _:                                                 # default case
                     pass
 
-        this_block = n_block
         pygame.display.update()
 
 
