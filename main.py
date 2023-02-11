@@ -23,7 +23,7 @@ class Color(Enum):
 class Block(Enum):
     T_Block = [
         [[0, 4], [1, 4], [2, 0 + 4], [1, 1 + 4]],        # normal
-        [[1, 4], [1, 5], [1, 2 + 4], [2, 1 + 4]],        # 1 x r | 2 x l
+        [[1, 4], [1, 5], [1, 2 + 4], [0, 1 + 4]],        # 1 x r | 2 x l
         [[1, 5], [0, 6], [1, 2 + 4], [2, 2 + 4]],        # 2 x r | 2 x l
         [[0, 4], [0, 5], [1, 1 + 4], [0, 2 + 4]]         # 3 x r | 1 x l
     ]
@@ -202,7 +202,10 @@ def check_possible(block, direction):
     for tile in this:
         if tile[0] < 0 or tile[0] > 16 or tile[1] < 0 or tile[1] > 9:
             return True
-        if recs[tile[0]][tile[1]].is_full:
+        try:
+            if recs[tile[0]][tile[1]].is_full:
+                return True
+        except IndexError:
             return True
 
     return False
@@ -279,7 +282,7 @@ def move_block(block):
 
 
 def lr_movement(block, left, direction):
-    bl = block[0]
+    bl = copy.deepcopy(block[0])
     n_block = []
     for bn in bl:
         in_dir = []
@@ -316,20 +319,20 @@ def delete_line(line, root):
     for tile in recs[line]:
         tile.clear(root)
 
-    for x, lines in enumerate(recs):
+    for x, lines in enumerate(reversed(recs)):
         if x < line:
             for y, tile in enumerate(lines):
                 if tile.is_full:
-                    if x + 1 < 17:
-                        sprite = tile.clear(root)
-                        recs[x + 1][y].draw(root, sprite, False, False)
+                    sprite = tile.clear(root)
+                    recs[15 - (x - 1)][y].draw(root, sprite, False, False)
 
 # MAIN
 
-
+   
 def main():
     global running, recs
     delay = 0.3
+    current_delay = 0.3
     root = pygame.display.set_mode(screen_size)                         # we make the window full screen
     root.fill(Color.Light_Grey.value)                                   # we make the background grey
 
@@ -342,6 +345,10 @@ def main():
     last_dir = None
     while running:
         now_time = time.time()
+
+        clear_line = check_line()
+        if clear_line != 99:
+            delete_line(clear_line, root)
 
         if now_time - start_time > delay:
             prev_block = copy.deepcopy(this_block[0][direction[0]])
@@ -356,25 +363,6 @@ def main():
                     running = False
                     print('GAME OVER!!!')
 
-        if check_possible(this_block, direction):
-            if last_dir:
-                if direction[0] == 0:
-                    direction[0] = 3
-                else:
-                    direction[0] -= 1
-            else:
-                if direction[0] == 3:
-                    direction[0] = 0
-                else:
-                    direction[0] += 1
-
-        else:
-            engine(root, this_block, prev_block, direction)
-
-        clear_line = check_line()
-        if clear_line != 99:
-            delete_line(clear_line, root)
-
         last_dir = None
 
         for event in pygame.event.get():                                # we go over all events
@@ -388,20 +376,23 @@ def main():
                     match event.key:
                         case pygame.K_a:                                # move left
                             is_possible = True
+                            t = 0
                             for tile in this_block[0][direction[0]]:
-                                if not tile[1] - 1 < 1:
-                                    is_possible = True
-                                else:
-                                    is_possible = False
+                                if tile[1] - 1 < 10:
+                                    t += 1
+                            if t == 4:
+                                is_possible = True
                             if is_possible:
                                 this_block = lr_movement(this_block, True, direction)
                         case pygame.K_d:                               # move right
                             is_possible = True
+                            t = 0
                             for tile in this_block[0][direction[0]]:
-                                if not tile[1] + 1 > 9:
-                                    is_possible = True
-                                else:
-                                    is_possible = False
+                                if tile[1] + 1 < 10:
+                                    t += 1
+
+                            if t == 4:
+                                is_possible = True
                             if is_possible:
                                 this_block = lr_movement(this_block, False, direction)
                         case pygame.K_w:                                # rotate right
@@ -417,10 +408,28 @@ def main():
                             else:
                                 direction[0] = 3
                         case pygame.K_SPACE:                            # fast down
-                            pass
+                            delay = 0.05
 
+                case pygame.KEYUP:                                      # we see if a key is unpressed
+                    if event.key == pygame.K_SPACE:
+                        delay = current_delay
                 case _:                                                 # default case
                     pass
+
+        if check_possible(this_block, direction):
+            if last_dir:
+                if direction[0] == 0:
+                    direction[0] = 3
+                else:
+                    direction[0] -= 1
+            else:
+                if direction[0] == 3:
+                    direction[0] = 0
+                else:
+                    direction[0] += 1
+
+        else:
+            engine(root, this_block, prev_block, direction)
 
         pygame.display.update()
 
