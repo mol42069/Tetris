@@ -22,10 +22,10 @@ class Color(Enum):
 
 class Block(Enum):
     T_Block = [
-        [[0, 0 + 4], [1, 0 + 4], [2, 0 + 4], [1, 1 + 4]],        # normal
-        [[1, 0 + 4], [1, 1 + 4], [1, 2 + 4], [2, 2 + 4]],        # 1 x r | 2 x l
-        [[1, 1 + 4], [0, 2 + 4], [1, 2 + 4], [2, 2 + 4]],        # 2 x r | 2 x l
-        [[0, 0 + 4], [0, 1 + 4], [1, 1 + 4], [0, 2 + 4]]         # 3 x r | 1 x l
+        [[0, 4], [1, 4], [2, 0 + 4], [1, 1 + 4]],        # normal
+        [[1, 4], [1, 5], [1, 2 + 4], [2, 1 + 4]],        # 1 x r | 2 x l
+        [[1, 5], [0, 6], [1, 2 + 4], [2, 2 + 4]],        # 2 x r | 2 x l
+        [[0, 4], [0, 5], [1, 1 + 4], [0, 2 + 4]]         # 3 x r | 1 x l
     ]
 
     I_Block = [
@@ -82,12 +82,12 @@ class Rectangle:
         self.height = 60
         self.rect = (self.x, self.y, self.width, self.height)
         root.blit(blank_tile, self.rect)
+        self.sprite = yellow_tile
 
     def draw(self, root, sprite, clear=False, falling=True):
         if not self.is_full:
             if falling:
                 root.blit(sprite, (self.x, self.y))
-
             else:
                 if clear:
                     self.is_full = False
@@ -95,6 +95,12 @@ class Rectangle:
                 else:
                     self.is_full = True
                     root.blit(sprite, (self.x, self.y))
+                    self.sprite = sprite
+
+    def clear(self, root):
+        self.is_full = False
+        root.blit(blank_tile, self.rect)
+        return self.sprite
 
 
 # init:
@@ -192,9 +198,9 @@ def check_possible(block, direction):
     try:
         this = block[0][direction[0]]
     except IndexError:
-        this = block[0][direction[1]]
+        return True
     for tile in this:
-        if tile[0] < 1 or tile[0] > 16 or tile[1] < 1 or tile[1] > 9:
+        if tile[0] < 0 or tile[0] > 16 or tile[1] < 0 or tile[1] > 9:
             return True
         if recs[tile[0]][tile[1]].is_full:
             return True
@@ -206,10 +212,20 @@ def engine(root, block, prev, direction):
     global running, recs
     co_block = block[0][direction[0]]
     i = len(co_block)
+    set_block = False
     for rec in recs:
         for r in rec:
             if not r.is_full:
                 r.draw(root, blank_tile, True, False)
+
+    for tile in co_block:
+        if tile[0] > 16:
+            set_block = True
+
+    if set_block:
+        for tile in prev:
+            recs[tile[0]][tile[1]].draw(root, block[1], False, False)
+        return True
 
     try:
         for tile in co_block:
@@ -262,7 +278,7 @@ def move_block(block):
     return block
 
 
-def lr_movement(root, block, left, prev, direction):
+def lr_movement(block, left, direction):
     bl = block[0]
     n_block = []
     for bn in bl:
@@ -280,12 +296,40 @@ def lr_movement(root, block, left, prev, direction):
     else:
         return block_moved
 
+
+def check_line():
+    global recs
+
+    for x, line in enumerate(recs):
+        i = 0
+        for tile in line:
+            if tile.is_full:
+                i += 1
+        if i == 10:
+            return x
+
+    return 99
+
+
+def delete_line(line, root):
+    global recs
+    for tile in recs[line]:
+        tile.clear(root)
+
+    for x, lines in enumerate(recs):
+        if x < line:
+            for y, tile in enumerate(lines):
+                if tile.is_full:
+                    if x + 1 < 17:
+                        sprite = tile.clear(root)
+                        recs[x + 1][y].draw(root, sprite, False, False)
+
 # MAIN
 
 
 def main():
     global running, recs
-    delay = 0.2
+    delay = 0.3
     root = pygame.display.set_mode(screen_size)                         # we make the window full screen
     root.fill(Color.Light_Grey.value)                                   # we make the background grey
 
@@ -308,6 +352,9 @@ def main():
                 prev_block = None
                 this_block = n_block
                 n_block = next_block()
+                if check_possible(this_block, direction):
+                    running = False
+                    print('GAME OVER!!!')
 
         if check_possible(this_block, direction):
             if last_dir:
@@ -323,6 +370,10 @@ def main():
 
         else:
             engine(root, this_block, prev_block, direction)
+
+        clear_line = check_line()
+        if clear_line != 99:
+            delete_line(clear_line, root)
 
         last_dir = None
 
@@ -343,7 +394,7 @@ def main():
                                 else:
                                     is_possible = False
                             if is_possible:
-                                this_block = lr_movement(root, this_block, True, prev_block, direction)
+                                this_block = lr_movement(this_block, True, direction)
                         case pygame.K_d:                               # move right
                             is_possible = True
                             for tile in this_block[0][direction[0]]:
@@ -352,7 +403,7 @@ def main():
                                 else:
                                     is_possible = False
                             if is_possible:
-                                this_block = lr_movement(root, this_block, False, prev_block, direction)
+                                this_block = lr_movement(this_block, False, direction)
                         case pygame.K_w:                                # rotate right
                             last_dir = True
                             if direction[0] < 3:
