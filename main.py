@@ -96,11 +96,12 @@ class Rectangle:
                     self.is_full = True
                     root.blit(sprite, (self.x, self.y))
                     self.sprite = sprite
+        return root
 
     def clear(self, root):
         self.is_full = False
         root.blit(blank_tile, self.rect)
-        return self.sprite
+        return root, self.sprite
 
 
 # init:
@@ -117,6 +118,9 @@ red_tile = pygame.image.load('./resources/Red_tile.png')
 yellow_tile = pygame.image.load('./resources/Yellow_tile.png')
 orange_tile = pygame.image.load('./resources/Orange_tile.png')
 blank_tile = pygame.image.load('./resources/Blank_tile.png')
+game_over = pygame.image.load('./resources/Game_Over.png')
+try_again = pygame.image.load('./resources/Try_Again.png')
+quit_img = pygame.image.load('./resources/QUIT.png')
 
 # GLOBAL VARIABLES
 
@@ -303,13 +307,13 @@ def lr_movement(block, left, direction):
 def check_line():
     global recs
 
-    for x, line in enumerate(recs):
+    for x, line in enumerate(reversed(recs)):
         i = 0
         for tile in line:
             if tile.is_full:
                 i += 1
         if i == 10:
-            return x
+            return 16 - x
 
     return 99
 
@@ -318,17 +322,56 @@ def delete_line(line, root):
     global recs
     for tile in recs[line]:
         tile.clear(root)
+    for x, lines in enumerate(reversed(recs[line + 1:])):
+        for y, tile in enumerate(lines):
+            if tile.is_full:
+                sprite = tile.clear(root)
+                recs[line - x][y].draw(root, sprite, False, False)
 
-    for x, lines in enumerate(reversed(recs)):
-        if x < line:
-            for y, tile in enumerate(lines):
-                if tile.is_full:
-                    sprite = tile.clear(root)
-                    recs[15 - (x - 1)][y].draw(root, sprite, False, False)
+
+def delete_ls(line, root):
+
+    global recs
+    for tile in recs[line]:
+        root, sprite = tile.clear(root)
+    res = recs[:line]
+    for x, lines in enumerate(reversed(res)):
+        for y, tile in enumerate(lines):
+            if tile.is_full:
+                root, sprite = tile.clear(root)
+                try:
+                    root = recs[line - x][y].draw(root, sprite, False, False)
+                except IndexError:
+                    pass
+    return root
+
+
+def game_over_state(root):
+    gos = True
+    root.blit(game_over, (0, 0))
+    quit_rect = quit_img.get_rect()
+    quit_rect.topleft = (200, 400)
+    try_rect = try_again.get_rect()
+    try_rect.topleft = (200, 600)
+    root.blit(quit_img, (quit_rect.x, quit_rect.y))
+    root.blit(try_again, (try_rect.x, try_rect.y))
+
+    while gos:
+        pygame.display.update()
+        pos = pygame.mouse.get_pos()
+
+        if quit_rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0]:
+                gos = False
+        elif try_rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0]:
+                gos = False
+                main()
+
 
 # MAIN
 
-   
+
 def main():
     global running, recs
     delay = 0.3
@@ -342,13 +385,15 @@ def main():
     direction = [0, 0]
     prev_block = None
     n_block = next_block()
-    last_dir = None
     while running:
         now_time = time.time()
 
         clear_line = check_line()
         if clear_line != 99:
-            delete_line(clear_line, root)
+            for line in recs:
+                clear_line = check_line()
+                if clear_line != 99:
+                    root = delete_ls(clear_line, root)
 
         if now_time - start_time > delay:
             prev_block = copy.deepcopy(this_block[0][direction[0]])
@@ -361,7 +406,7 @@ def main():
                 n_block = next_block()
                 if check_possible(this_block, direction):
                     running = False
-                    print('GAME OVER!!!')
+                    game_over_state(root)
 
         last_dir = None
 
