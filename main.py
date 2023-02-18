@@ -1,7 +1,6 @@
 import time
 import copy
 import pygame
-
 import load_img
 import random as rnd
 from enum import Enum
@@ -10,10 +9,10 @@ from enum import Enum
 
 class Block(Enum):
     T_Block = [
-        [[0, 4], [1, 4], [2, 0 + 4], [1, 1 + 4]],        # normal
-        [[1, 4], [1, 5], [1, 2 + 4], [0, 1 + 4]],        # 1 x r | 2 x l
-        [[1, 5], [0, 6], [1, 2 + 4], [2, 2 + 4]],        # 2 x r | 2 x l
-        [[0, 4], [0, 5], [1, 1 + 4], [0, 2 + 4]]         # 3 x r | 1 x l
+        [[0, 4], [1, 4], [2, 0 + 4], [1, 1 + 4]],               # normal
+        [[1, 4], [1, 5], [1, 2 + 4], [0, 1 + 4]],               # 1 x r | 2 x l
+        [[1, 5], [0, 6], [1, 2 + 4], [2, 2 + 4]],               # 2 x r | 2 x l
+        [[0, 4], [0, 5], [1, 1 + 4], [0, 2 + 4]]                # 3 x r | 1 x l
     ]
 
     I_Block = [
@@ -92,27 +91,29 @@ class Rectangle:
         return root, self.sprite
 
 
+class NextRectangle:
+    def __init__(self, root, x, y):
+        self.x = int(x * 60) + 5 + 635
+        self.y = int(y * 60) + 5 + 137
+        self.width = 60
+        self.height = 60
+        self.rect = (self.x, self.y, self.width, self.height)
+        root.blit(load_img.get_img(load_img.Tiles.blank), self.rect)
+
+    def draw(self, root, sprite):
+        root.blit(sprite, self.rect)
+        return root
+
+    def clear(self, root):
+        root.blit(load_img.get_img(load_img.Tiles.blank), self.rect)
+        return root
 # init:
 
 pygame.init()
+pygame.font.init()
+my_font = pygame.font.SysFont('Arial', 30)
 
 # LOAD IMAGES
-
-# blue_tile = pygame.image.load('./resources/Blue_tile.png')
-# green_tile = pygame.image.load('./resources/Green_tile.png')
-# light_purple_tile = pygame.image.load('./resources/light_purple_tile.png')
-# light_blue_tile = pygame.image.load('./resources/light_Blue_tile.png')
-# red_tile = pygame.image.load('./resources/Red_tile.png')
-# yellow_tile = pygame.image.load('./resources/Yellow_tile.png')
-# orange_tile = pygame.image.load('./resources/Orange_tile.png')
-# blank_tile = pygame.image.load('./resources/Blank_tile.png')
-# game_over = pygame.image.load('./resources/Game_Over.png')
-# try_again = pygame.image.load('./resources/Try_Again.png')
-# try_again_hover = pygame.image.load('./resources/Try_Again_hover.png')
-# try_again_clicked = pygame.image.load('./resources/Try_Again_clicked.png')
-# quit_img = pygame.image.load('./resources/QUIT.png')
-# quit_hover = pygame.image.load('./resources/QUIT_hover.png')
-# quit_clicked = pygame.image.load('./resources/QUIT_clicked.png')
 
 load_img.load()
 
@@ -123,7 +124,12 @@ game_rect = (600, 1020)
 borders = 5
 running = True
 recs = []
+nb_disp = []
 first_start = True
+score = 0
+last_score = 0
+in_a_row = 0
+delay = 0.3
 
 # init for game layout
 
@@ -160,7 +166,7 @@ def layout_init(root):
     return root
 
 
-def next_block():
+def next_block(root):
     i = rnd.randint(0, 6)
     match i:
         case 0:
@@ -189,7 +195,10 @@ def next_block():
             color = load_img.get_img(load_img.Tiles.yellow)
 
     next_b = [block, color]
-    return next_b
+
+    root = next_block_display(root, next_b)
+
+    return root, next_b
 
 
 def check_possible(block, direction):
@@ -313,20 +322,9 @@ def check_line():
     return 99
 
 
-def delete_line(line, root):
-    global recs
-    for tile in recs[line]:
-        tile.clear(root)
-    for x, lines in enumerate(reversed(recs[line + 1:])):
-        for y, tile in enumerate(lines):
-            if tile.is_full:
-                sprite = tile.clear(root)
-                recs[line - x][y].draw(root, sprite, False, False)
-
-
 def delete_ls(line, root):
+    global recs, last_score, score, delay
 
-    global recs
     for tile in recs[line]:
         root, sprite = tile.clear(root)
     res = recs[:line]
@@ -338,6 +336,9 @@ def delete_ls(line, root):
                     root = recs[line - x][y].draw(root, sprite, False, False)
                 except IndexError:
                     pass
+
+    if score - last_score > 75000:
+        delay -= 0.01
     return root
 
 
@@ -407,6 +408,7 @@ def starting_state(root):
 
     # we display the full starting screen
     root.blit(load_img.get_img(load_img.Screens.starting), (0, 0))
+
     # we define where and how big the buttons are
     quit_rect = load_img.get_img(load_img.Buttons.quit).get_rect()
     quit_rect.topleft = (200, 800)
@@ -414,6 +416,7 @@ def starting_state(root):
     start_rect.topleft = (200, 400)
     record_rect = load_img.get_img(load_img.Buttons.records).get_rect()
     record_rect.topleft = (200, 600)
+
     # we display the buttons
     root.blit(load_img.get_img(load_img.Buttons.quit), (quit_rect.x, quit_rect.y))
     root.blit(load_img.get_img(load_img.Buttons.start), (start_rect.x, start_rect.y))
@@ -460,12 +463,50 @@ def starting_state(root):
             elif event.type == pygame.QUIT:
                 exit(101)
 
+
+def next_block_display_init(root):
+    global nb_disp
+    root.blit(load_img.get_img(load_img.Screens.next_block), (615, 100))
+    pygame.display.update()
+    for x in range(0, 5):
+        line = []
+        for y in range(0, 5):
+            line.append(NextRectangle(root, x, y))
+        nb_disp.append(line)
+
+    return root
+
+def next_block_display(root, block):
+    global nb_disp
+    color = block[1]
+    bl = copy.deepcopy(block[0])
+    for x in nb_disp:
+        for y in x:
+            root = y.clear(root)
+
+    for tile in bl[0]:
+        tile[1] -= 3
+        root = nb_disp[tile[1]][tile[0]].draw(root, color)
+
+    return root
+
+def score_disp(root):
+    global score, my_font
+    txt_surface = my_font.render(str(score), True, load_img.Colors.Light_Grey.value)
+
+    root.blit(load_img.get_img(load_img.Screens.score), (615, 464))
+    root.blit(txt_surface,(650, 518))
+    return root
+
 def init():                                                                 # added init so we can call main() again
-    global screen_size, game_rect, borders, running, recs                   # from the game_over_state
+    global screen_size, game_rect, borders, running, recs, score, delay, last_score
     screen_size = (1000, 1030)
     game_rect = (600, 1020)
     borders = 5
     running = True
+    score = 0
+    last_score = 0
+    delay = 0.3
     recs = []
 
 
@@ -473,23 +514,29 @@ def init():                                                                 # ad
 
 
 def main():
-    global running, recs
+    global running, recs, in_a_row, score, delay
     init()
-    delay = 0.3
-    current_delay = 0.3
+    current_delay = delay
     root = pygame.display.set_mode(screen_size)                         # we make the window full screen
     root.fill(load_img.Colors.Light_Grey.value)                                   # we make the background grey
 
     root = layout_init(root)
-    this_block = next_block()
+
     start_time = time.time()
     direction = [0, 0]
     prev_block = None
-    n_block = next_block()
+
+
     if first_start:
         root = starting_state(root)
 
+    root = next_block_display_init(root)
+    root, this_block = next_block(root)
+    root, n_block = next_block(root)
+
     while running:
+        root = score_disp(root)
+
         now_time = time.time()
 
         clear_line = check_line()
@@ -497,7 +544,12 @@ def main():
             for line in recs:
                 clear_line = check_line()
                 if clear_line != 99:
+                    in_a_row += 1
                     root = delete_ls(clear_line, root)
+                    score += 1000
+            if in_a_row == 4:
+                score += 10000
+            in_a_row = 0
 
         if now_time - start_time > delay:
             prev_block = copy.deepcopy(this_block[0][direction[0]])
@@ -507,7 +559,8 @@ def main():
             if engine(root, this_block, prev_block, direction):  # if the block is placed we swap the
                 prev_block = None
                 this_block = n_block
-                n_block = next_block()
+                root, n_block = next_block(root)
+                score += 100
                 if check_possible(this_block, direction):
                     running = False
                     game_over_state(root)
@@ -557,7 +610,7 @@ def main():
                             else:
                                 direction[0] = 3
                         case pygame.K_SPACE:                            # fast down
-                            delay = 0.01
+                            delay = 0.03
 
                 case pygame.KEYUP:                                      # we see if a key is unpressed
                     if event.key == pygame.K_SPACE:
