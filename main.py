@@ -120,7 +120,12 @@ orange_tile = pygame.image.load('./resources/Orange_tile.png')
 blank_tile = pygame.image.load('./resources/Blank_tile.png')
 game_over = pygame.image.load('./resources/Game_Over.png')
 try_again = pygame.image.load('./resources/Try_Again.png')
+try_again_hover = pygame.image.load('./resources/Try_Again_hover.png')
+try_again_clicked = pygame.image.load('./resources/Try_Again_clicked.png')
 quit_img = pygame.image.load('./resources/QUIT.png')
+quit_hover = pygame.image.load('./resources/QUIT_hover.png')
+quit_clicked = pygame.image.load('./resources/QUIT_clicked.png')
+
 
 # GLOBAL VARIABLES
 
@@ -266,7 +271,7 @@ def engine(root, block, prev, direction):
         else:
             for tile in co_block:                                       # and draw the new block
                 recs[tile[0]][tile[1]].draw(root, block[1], False, False)
-                print('GAME OVER!!!')
+                game_over_state(root)
                 running = False
                 return True
 
@@ -358,15 +363,42 @@ def game_over_state(root):
 
     while gos:
         pygame.display.update()
-        pos = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if quit_rect.collidepoint(pos):
+                    root.blit(quit_clicked, (quit_rect.x, quit_rect.y))
+                    pygame.display.update()
+                    pygame.time.delay(50)
+                    exit(0)
+                elif try_rect.collidepoint(pos):
+                    root.blit(try_again_clicked, (try_rect.x, try_rect.y))
+                    pygame.display.update()
+                    pygame.time.delay(25)
+                    main()
+            if event.type == pygame.MOUSEMOTION:
+                pos = pygame.mouse.get_pos()
 
-        if quit_rect.collidepoint(pos):
-            if pygame.mouse.get_pressed()[0]:
-                gos = False
-        elif try_rect.collidepoint(pos):
-            if pygame.mouse.get_pressed()[0]:
-                gos = False
-                main()
+                if quit_rect.collidepoint(pos):
+                    root.blit(quit_hover, (quit_rect.x, quit_rect.y))
+
+                elif try_rect.collidepoint(pos):  # if mouse hovers over 'TryAgain'
+                    root.blit(try_again_hover, (try_rect.x, try_rect.y))
+                else:
+                    root.blit(try_again, (try_rect.x, try_rect.y))
+                    root.blit(quit_img, (quit_rect.x, quit_rect.y))
+
+            elif event.type == pygame.QUIT:
+                exit(101)
+
+
+def init():
+    global screen_size, game_rect, borders, running, recs
+    screen_size = (1000, 1030)
+    game_rect = (600, 1020)
+    borders = 5
+    running = True
+    recs = []
 
 
 # MAIN
@@ -374,6 +406,7 @@ def game_over_state(root):
 
 def main():
     global running, recs
+    init()
     delay = 0.3
     current_delay = 0.3
     root = pygame.display.set_mode(screen_size)                         # we make the window full screen
