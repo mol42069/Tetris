@@ -343,7 +343,31 @@ def delete_ls(line, root):
 
 
 def game_over_state(root):
-    global  first_start
+    global  first_start, score
+    placement = []
+
+    with open("./resources/Records/Records.txt", "r") as file:
+        data = file.read()
+
+    if data != '':
+
+        n = ''
+        for letter in data:
+            if letter != '-':
+                n += str(letter)
+            else:
+                placement.append(int(n))
+                n = ''
+        for place, s in enumerate(placement):
+            if score > s:
+                placement.insert(place, score)
+                break
+    else:
+        placement.append(score)
+
+    with open("./resources/Records/Records.txt", "w") as file:
+        for s in placement:
+            file.write(str(s) + '-')
 
     gos = True
     first_start = False
