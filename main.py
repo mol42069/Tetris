@@ -1,22 +1,10 @@
 import time
 import copy
 import pygame
+
+import load_img
 import random as rnd
 from enum import Enum
-
-
-# Colors:
-class Color(Enum):
-    Black = (0, 0, 0)
-    White = (255, 255, 255)
-    Grey = (50, 50, 50)
-    Light_Grey = (140, 140, 140)
-    Dark_Grey = (15, 15, 15)
-    Yellow = (255, 255, 0)
-    Green = (0, 255, 0)
-    Blue = (0, 0, 255)
-    Red = (255, 0, 0)
-
 
 # Blocks:
 
@@ -81,8 +69,8 @@ class Rectangle:
         self.width = 60
         self.height = 60
         self.rect = (self.x, self.y, self.width, self.height)
-        root.blit(blank_tile, self.rect)
-        self.sprite = yellow_tile
+        root.blit(load_img.get_img(load_img.Tiles.blank), self.rect)
+        self.sprite = load_img.get_img(load_img.Tiles.yellow)
 
     def draw(self, root, sprite, clear=False, falling=True):
         if not self.is_full:
@@ -91,7 +79,7 @@ class Rectangle:
             else:
                 if clear:
                     self.is_full = False
-                    root.blit(blank_tile, self.rect)
+                    root.blit(load_img.get_img(load_img.Tiles.blank), self.rect)
                 else:
                     self.is_full = True
                     root.blit(sprite, (self.x, self.y))
@@ -100,7 +88,7 @@ class Rectangle:
 
     def clear(self, root):
         self.is_full = False
-        root.blit(blank_tile, self.rect)
+        root.blit(load_img.get_img(load_img.Tiles.blank), self.rect)
         return root, self.sprite
 
 
@@ -110,22 +98,23 @@ pygame.init()
 
 # LOAD IMAGES
 
-blue_tile = pygame.image.load('./resources/Blue_tile.png')
-green_tile = pygame.image.load('./resources/Green_tile.png')
-light_purple_tile = pygame.image.load('./resources/light_purple_tile.png')
-light_blue_tile = pygame.image.load('./resources/light_Blue_tile.png')
-red_tile = pygame.image.load('./resources/Red_tile.png')
-yellow_tile = pygame.image.load('./resources/Yellow_tile.png')
-orange_tile = pygame.image.load('./resources/Orange_tile.png')
-blank_tile = pygame.image.load('./resources/Blank_tile.png')
-game_over = pygame.image.load('./resources/Game_Over.png')
-try_again = pygame.image.load('./resources/Try_Again.png')
-try_again_hover = pygame.image.load('./resources/Try_Again_hover.png')
-try_again_clicked = pygame.image.load('./resources/Try_Again_clicked.png')
-quit_img = pygame.image.load('./resources/QUIT.png')
-quit_hover = pygame.image.load('./resources/QUIT_hover.png')
-quit_clicked = pygame.image.load('./resources/QUIT_clicked.png')
+# blue_tile = pygame.image.load('./resources/Blue_tile.png')
+# green_tile = pygame.image.load('./resources/Green_tile.png')
+# light_purple_tile = pygame.image.load('./resources/light_purple_tile.png')
+# light_blue_tile = pygame.image.load('./resources/light_Blue_tile.png')
+# red_tile = pygame.image.load('./resources/Red_tile.png')
+# yellow_tile = pygame.image.load('./resources/Yellow_tile.png')
+# orange_tile = pygame.image.load('./resources/Orange_tile.png')
+# blank_tile = pygame.image.load('./resources/Blank_tile.png')
+# game_over = pygame.image.load('./resources/Game_Over.png')
+# try_again = pygame.image.load('./resources/Try_Again.png')
+# try_again_hover = pygame.image.load('./resources/Try_Again_hover.png')
+# try_again_clicked = pygame.image.load('./resources/Try_Again_clicked.png')
+# quit_img = pygame.image.load('./resources/QUIT.png')
+# quit_hover = pygame.image.load('./resources/QUIT_hover.png')
+# quit_clicked = pygame.image.load('./resources/QUIT_clicked.png')
 
+load_img.load()
 
 # GLOBAL VARIABLES
 
@@ -134,6 +123,7 @@ game_rect = (600, 1020)
 borders = 5
 running = True
 recs = []
+first_start = True
 
 # init for game layout
 
@@ -146,7 +136,7 @@ def layout_init(root):
     x = borders
     y = (screen_size[1] - game_rect[1]) / 2
     rect = pygame.Rect((x, y, game_rect[0], game_rect[1]))
-    pygame.draw.rect(root, Color.Dark_Grey.value, rect)
+    pygame.draw.rect(root, load_img.Colors.Dark_Grey.value, rect)
 
     # Right Grey Panel:
 
@@ -155,7 +145,7 @@ def layout_init(root):
     height = screen_size[1] - (borders * 2)
     x = game_rect[0] + (borders * 2)
     rect = pygame.Rect(x, y, width, height)
-    pygame.draw.rect(root, Color.Grey.value, rect)
+    pygame.draw.rect(root, load_img.Colors.Grey.value, rect)
 
     # we draw the rectangles in the Game Panel
 
@@ -175,28 +165,28 @@ def next_block():
     match i:
         case 0:
             block = copy.deepcopy(Block.Q_Block.value)
-            color = yellow_tile
+            color = load_img.get_img(load_img.Tiles.yellow)
         case 1:
             block = copy.deepcopy(Block.I_Block.value)
-            color = light_blue_tile
+            color = load_img.get_img(load_img.Tiles.light_blue)
         case 2:
             block = copy.deepcopy(Block.T_Block.value)
-            color = green_tile
+            color = load_img.get_img(load_img.Tiles.green)
         case 3:
             block = copy.deepcopy(Block.L1_Block.value)
-            color = blue_tile
+            color = load_img.get_img(load_img.Tiles.blue)
         case 4:
             block = copy.deepcopy(Block.L2_Block.value)
-            color = orange_tile
+            color = load_img.get_img(load_img.Tiles.orange)
         case 5:
             block = copy.deepcopy(Block.Z1_Block.value)
-            color = red_tile
+            color = load_img.get_img(load_img.Tiles.red)
         case 6:
             block = copy.deepcopy(Block.Z2_Block.value)
-            color = light_purple_tile
+            color = load_img.get_img(load_img.Tiles.light_purple)
         case _:
             block = copy.deepcopy(Block.Q_Block.value)
-            color = yellow_tile
+            color = load_img.get_img(load_img.Tiles.yellow)
 
     next_b = [block, color]
     return next_b
@@ -228,7 +218,7 @@ def engine(root, block, prev, direction):
     for rec in recs:
         for r in rec:
             if not r.is_full:
-                r.draw(root, blank_tile, True, False)
+                r.draw(root, load_img.get_img(load_img.Tiles.blank), True, False)
 
     for tile in co_block:
         if tile[0] > 16:
@@ -352,48 +342,126 @@ def delete_ls(line, root):
 
 
 def game_over_state(root):
+    global  first_start
+
     gos = True
-    root.blit(game_over, (0, 0))
-    quit_rect = quit_img.get_rect()
-    quit_rect.topleft = (200, 400)
-    try_rect = try_again.get_rect()
-    try_rect.topleft = (200, 600)
-    root.blit(quit_img, (quit_rect.x, quit_rect.y))
-    root.blit(try_again, (try_rect.x, try_rect.y))
+    first_start = False
+    root.blit(load_img.get_img(load_img.Screens.game_over), (0, 0))
+    quit_rect = load_img.get_img(load_img.Buttons.quit).get_rect()
+    quit_rect.topleft = (200, 600)
+    try_rect = load_img.get_img(load_img.Buttons.try_again).get_rect()
+    try_rect.topleft = (200, 400)
+    home_rect = load_img.get_img(load_img.Buttons.home).get_rect()
+    home_rect.topleft = (400, 850)
+    root.blit(load_img.get_img(load_img.Buttons.quit), (quit_rect.x, quit_rect.y))
+    root.blit(load_img.get_img(load_img.Buttons.try_again), (try_rect.x, try_rect.y))
+    root.blit(load_img.get_img(load_img.Buttons.home), (home_rect.x, home_rect.y))
 
     while gos:
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
+
                 if quit_rect.collidepoint(pos):
-                    root.blit(quit_clicked, (quit_rect.x, quit_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.quit_clicked), (quit_rect.x, quit_rect.y))
                     pygame.display.update()
                     pygame.time.delay(50)
                     exit(0)
+
                 elif try_rect.collidepoint(pos):
-                    root.blit(try_again_clicked, (try_rect.x, try_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.try_again_clicked), (try_rect.x, try_rect.y))
                     pygame.display.update()
                     pygame.time.delay(25)
                     main()
+
+                elif home_rect.collidepoint(pos):
+                    root.blit(load_img.get_img(load_img.Buttons.home_clicked), (home_rect.x, home_rect.y))
+                    pygame.display.update()
+                    pygame.time.delay(25)
+                    first_start = True
+                    main()
+
             if event.type == pygame.MOUSEMOTION:
                 pos = pygame.mouse.get_pos()
 
                 if quit_rect.collidepoint(pos):
-                    root.blit(quit_hover, (quit_rect.x, quit_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.quit_hover), (quit_rect.x, quit_rect.y))
 
                 elif try_rect.collidepoint(pos):  # if mouse hovers over 'TryAgain'
-                    root.blit(try_again_hover, (try_rect.x, try_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.try_again_hover), (try_rect.x, try_rect.y))
+
+                elif home_rect.collidepoint(pos):  # if mouse hovers over 'TryAgain'
+                    root.blit(load_img.get_img(load_img.Buttons.home_hover), (home_rect.x, home_rect.y))
+
                 else:
-                    root.blit(try_again, (try_rect.x, try_rect.y))
-                    root.blit(quit_img, (quit_rect.x, quit_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.try_again), (try_rect.x, try_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.quit), (quit_rect.x, quit_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.home), (home_rect.x, home_rect.y))
 
             elif event.type == pygame.QUIT:
                 exit(101)
 
 
-def init():
-    global screen_size, game_rect, borders, running, recs
+def starting_state(root):
+
+    # we display the full starting screen
+    root.blit(load_img.get_img(load_img.Screens.starting), (0, 0))
+    # we define where and how big the buttons are
+    quit_rect = load_img.get_img(load_img.Buttons.quit).get_rect()
+    quit_rect.topleft = (200, 800)
+    start_rect = load_img.get_img(load_img.Buttons.start).get_rect()
+    start_rect.topleft = (200, 400)
+    record_rect = load_img.get_img(load_img.Buttons.records).get_rect()
+    record_rect.topleft = (200, 600)
+    # we display the buttons
+    root.blit(load_img.get_img(load_img.Buttons.quit), (quit_rect.x, quit_rect.y))
+    root.blit(load_img.get_img(load_img.Buttons.start), (start_rect.x, start_rect.y))
+    root.blit(load_img.get_img(load_img.Buttons.records), (record_rect.x, record_rect.y))
+    while True:
+        pygame.display.update() # each time we go through the loop we update the output
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:    # we only check if the button is pressed
+                pos = pygame.mouse.get_pos()
+                if quit_rect.collidepoint(pos):     # what to do if "quit" is pressed
+                    root.blit(load_img.get_img(load_img.Buttons.quit_clicked), (quit_rect.x, quit_rect.y))
+                    pygame.display.update()
+                    pygame.time.delay(50)
+                    exit(0)
+                elif start_rect.collidepoint(pos):  # what to do if "start" is pressed
+                    root.blit(load_img.get_img(load_img.Buttons.start_clicked), (start_rect.x, start_rect.y))
+                    pygame.display.update()
+                    pygame.time.delay(100)
+                    return root
+                elif record_rect.collidepoint(pos): # what to do if "records" is pressed
+                    root.blit(load_img.get_img(load_img.Buttons.records_clicked), (record_rect.x, record_rect.y))
+                    pygame.display.update()
+                    # pygame.time.delay(100)
+                    pass
+
+            if event.type == pygame.MOUSEMOTION:    # we check for mouse movement
+                pos = pygame.mouse.get_pos()
+
+                if quit_rect.collidepoint(pos):     # if mouse hovers over 'quit'
+                    root.blit(load_img.get_img(load_img.Buttons.quit_hover), (quit_rect.x, quit_rect.y))
+
+                elif start_rect.collidepoint(pos):  # if mouse hovers over 'start'
+                    root.blit(load_img.get_img(load_img.Buttons.start_hover), (start_rect.x, start_rect.y))
+
+                elif record_rect.collidepoint(pos):  # if mouse hovers over 'record'
+                    root.blit(load_img.get_img(load_img.Buttons.records_hover), (record_rect.x, record_rect.y))
+
+                else:
+                    root.blit(load_img.get_img(load_img.Buttons.start), (start_rect.x, start_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.quit), (quit_rect.x, quit_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.records), (record_rect.x, record_rect.y))
+
+            elif event.type == pygame.QUIT:
+                exit(101)
+
+def init():                                                                 # added init so we can call main() again
+    global screen_size, game_rect, borders, running, recs                   # from the game_over_state
     screen_size = (1000, 1030)
     game_rect = (600, 1020)
     borders = 5
@@ -410,7 +478,7 @@ def main():
     delay = 0.3
     current_delay = 0.3
     root = pygame.display.set_mode(screen_size)                         # we make the window full screen
-    root.fill(Color.Light_Grey.value)                                   # we make the background grey
+    root.fill(load_img.Colors.Light_Grey.value)                                   # we make the background grey
 
     root = layout_init(root)
     this_block = next_block()
@@ -418,6 +486,9 @@ def main():
     direction = [0, 0]
     prev_block = None
     n_block = next_block()
+    if first_start:
+        root = starting_state(root)
+
     while running:
         now_time = time.time()
 
@@ -486,7 +557,7 @@ def main():
                             else:
                                 direction[0] = 3
                         case pygame.K_SPACE:                            # fast down
-                            delay = 0.05
+                            delay = 0.01
 
                 case pygame.KEYUP:                                      # we see if a key is unpressed
                     if event.key == pygame.K_SPACE:
