@@ -349,20 +349,60 @@ def save_record(root):
                                                                     # TODO: gui to ask for name and stuff...
     name = 'Mozl'
 
+
     lsr.save(score, name)
 
     return root
 
 
 def see_records(root):
-    pass
-                                                                    # TODO: GUI to see leaderboard
+
+    root.blit(load_img.get_img(load_img.Screens.leaderboard), (0, 0))
+    back_rect = load_img.get_img(load_img.Buttons.back).get_rect()
+    back_rect.topleft = (912, 29)
+    root.blit(load_img.get_img(load_img.Buttons.back), (back_rect.x, back_rect.y))
     placements = lsr.load()
 
-    for place in placements:
-        pass                                                        # TODO: here we write the names to the board
+    # draw the actual placement:
 
-    return root
+    for y, place in enumerate(placements):
+        if y < 9:
+            place[0] = ' ' + place[0]
+
+        txt_surface = my_font.render(str(y + 1) + '. ' +(str(place[0])), True, load_img.Colors.Light_Grey.value)
+        root.blit(txt_surface, (50, 122 + y * 51))
+
+        txt_surface = my_font.render(str(place[1]), True, load_img.Colors.Light_Grey.value)
+        root.blit(txt_surface, (515, 122 + y * 51))
+
+    while True:
+        if pygame.mouse.get_pressed()[0]:
+            print(pygame.mouse.get_pos())
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            match event.type:
+                case pygame.MOUSEBUTTONDOWN:    # we only check if the button is pressed
+                    pos = pygame.mouse.get_pos()
+
+                    if back_rect.collidepoint(pos):     # what to do if "quit" is pressed
+                        root.blit(load_img.get_img(load_img.Buttons.back_clicked), (back_rect.x, back_rect.y))
+                        pygame.display.update()
+                        pygame.time.delay(100)
+                        return root
+
+                case pygame.MOUSEMOTION:    # we check for mouse movement
+                    pos = pygame.mouse.get_pos()
+
+                    if back_rect.collidepoint(pos):     # if mouse hovers over 'quit'
+                        root.blit(load_img.get_img(load_img.Buttons.back_hover), (back_rect.x, back_rect.y))
+
+                    else:
+                        root.blit(load_img.get_img(load_img.Buttons.back), (back_rect.x, back_rect.y))
+
+                case pygame.QUIT:
+                    exit()
+
 
 def game_over_state(root):
     global  first_start, score
@@ -450,21 +490,25 @@ def starting_state(root):
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:    # we only check if the button is pressed
                 pos = pygame.mouse.get_pos()
+
                 if quit_rect.collidepoint(pos):     # what to do if "quit" is pressed
                     root.blit(load_img.get_img(load_img.Buttons.quit_clicked), (quit_rect.x, quit_rect.y))
                     pygame.display.update()
-                    pygame.time.delay(50)
+                    pygame.time.delay(100)
                     exit(0)
+
                 elif start_rect.collidepoint(pos):  # what to do if "start" is pressed
                     root.blit(load_img.get_img(load_img.Buttons.start_clicked), (start_rect.x, start_rect.y))
                     pygame.display.update()
                     pygame.time.delay(100)
                     return root
+
                 elif record_rect.collidepoint(pos): # what to do if "records" is pressed
                     root.blit(load_img.get_img(load_img.Buttons.records_clicked), (record_rect.x, record_rect.y))
                     pygame.display.update()
-                    # pygame.time.delay(100)
-                    pass
+                    pygame.time.delay(100)
+                    root = see_records(root)
+                    root.blit(load_img.get_img(load_img.Screens.starting), (0, 0))
 
             if event.type == pygame.MOUSEMOTION:    # we check for mouse movement
                 pos = pygame.mouse.get_pos()
