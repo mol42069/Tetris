@@ -1,4 +1,4 @@
-
+import os
 
 def load():
 
@@ -14,6 +14,7 @@ def load():
             if letter != '-':                                       # and we separate the numbers if there is a '-'
                 if letter == ':':
                     in_score = True
+                    continue
 
                 if in_score:
                     n[1] += str(letter)
@@ -30,6 +31,8 @@ def load():
 
 def in_tt(score):
     placement = load()
+    if len(placement) < 20:
+        return True
 
     for s, place in enumerate(placement):
         if place[1] < score:
@@ -41,13 +44,17 @@ def in_tt(score):
 
 def save(score, name):
     placement = load()
+
     for s, place in enumerate(placement):
 
-        if place[1] < score:
+        if int(place[1]) < score:
             placement.insert(s, [str(name), str(score)])
+            break
 
-    if len(placement) > 20:
-        placement.pop(20)
+    if len(placement) == 0:
+        placement.append([str(name), str(score)])
+
+    os.remove('./resources/Records/Records.txt')
 
     with open('./resources/Records/Records.txt', 'w') as file:
         for place in placement:
