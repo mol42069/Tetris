@@ -1,7 +1,8 @@
 import time
 import copy
 import pygame
-import load_img
+from load import load_img
+from load import ls_records as lsr
 import random as rnd
 from enum import Enum
 
@@ -342,33 +343,31 @@ def delete_ls(line, root):
     return root
 
 
+def save_record(root):
+    global score
+
+                                                                    # TODO: gui to ask for name and stuff...
+    name = 'see upper'
+
+    lsr.save(score, name)
+
+    return root
+
+
+def see_records(root):
+    pass
+                                                                    # TODO: GUI to see leaderboard
+    placements = lsr.load()
+
+    for place in placements:
+        pass                                                        # TODO: here we write the names to the board
+
+    return root
+
 def game_over_state(root):
     global  first_start, score
-    placement = []
-
-    with open("./resources/Records/Records.txt", "r") as file:
-        data = file.read()
-
-    if data != '':
-
-        n = ''
-        for letter in data:
-            if letter != '-':
-                n += str(letter)
-            else:
-                placement.append(int(n))
-                n = ''
-        for place, s in enumerate(placement):
-            if score > s:
-                placement.insert(place, score)
-                break
-    else:
-        placement.append(score)
-
-    with open("./resources/Records/Records.txt", "w") as file:
-        for s in placement:
-            file.write(str(s) + '-')
-
+    if lsr.in_tt(score):
+        root = save_record(root)
     gos = True
     first_start = False
     root.blit(load_img.get_img(load_img.Screens.game_over), (0, 0))
