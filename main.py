@@ -347,7 +347,7 @@ def save_record(root):
     global score
 
                                                                     # TODO: gui to ask for name and stuff...
-    name = 'see upper'
+    name = 'Mozl'
 
     lsr.save(score, name)
 
