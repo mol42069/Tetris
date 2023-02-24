@@ -345,11 +345,64 @@ def delete_ls(line, root):
 
 def save_record(root):
     global score
+    name = ''
 
-                                                                    # TODO: gui to ask for name and stuff...
-    name = 'Mozl'
+    # we initialize the rectangles and stuff:
+    input_rect = pygame.Rect(420, 505, 140, 20)
+    pygame.draw.rect(root, (54, 54, 54), input_rect)
 
+    text_surface = my_font.render(name, True, (0, 0, 0))
+    root.blit(text_surface, (input_rect.x + 5, input_rect.y + 5))
+    input_rect.w = max(100, text_surface.get_width() + 10)
+    submit_rect = load_img.get_img(load_img.Buttons.submit).get_rect()
+    submit_rect.topleft = (280, 608)
+    submit_img = load_img.get_img(load_img.Buttons.submit)
+    submitted = False
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
 
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:                 # if backspace is pressed the name is the name
+                    name = name[:-1]                                # without the last letter
+                elif event.key == pygame.K_ESCAPE:
+                    break
+                else:                                               # if anything but backspace is pressed we add to
+                    if len(name) < 11:                              # the name
+                        name += event.unicode
+
+            # like always we check for hovering effect and clicked effect
+
+            elif event.type == pygame.MOUSEMOTION:
+                pos = pygame.mouse.get_pos()
+                if submit_rect.collidepoint(pos):
+                    submit_img = load_img.get_img(load_img.Buttons.submit_hover)
+                else:
+                    submit_img = load_img.get_img(load_img.Buttons.submit)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if submit_rect.collidepoint(pos):
+                    submit_img = load_img.get_img(load_img.Buttons.submit_clicked)
+                    pygame.time.delay(100)
+                    submitted = True
+                    break
+                else:
+                    submit_img = load_img.get_img(load_img.Buttons.submit)
+
+        root.blit(load_img.get_img(load_img.Screens.leaderboard_enter), (250, 365))     # we have to re-blit the Screen
+        root.blit(submit_img, submit_rect)                                              # incase backspace is pressed
+
+        text_surface = my_font.render(name, True, (0, 0, 0))
+        root.blit(text_surface, (input_rect.x + 5, input_rect.y + 5))                   # we write the 'name' variable
+        input_rect.w = max(100, text_surface.get_width() + 10)
+
+        pygame.display.update()
+        if submitted and len(name) > 2: break                                           # check that we pressed submit
+        else: submitted = False                                                         # and name is longer than 2 word
+                                                                                        # if not longer we turn submitted
+                                                                                        # back to False
+    root.blit(load_img.get_img(load_img.Screens.game_over), (0, 0))
     lsr.save(score, name)
 
     return root
@@ -358,6 +411,7 @@ def save_record(root):
 def see_records(root):
 
     root.blit(load_img.get_img(load_img.Screens.leaderboard), (0, 0))
+
     back_rect = load_img.get_img(load_img.Buttons.back).get_rect()
     back_rect.topleft = (912, 29)
     root.blit(load_img.get_img(load_img.Buttons.back), (back_rect.x, back_rect.y))
@@ -406,11 +460,12 @@ def see_records(root):
 
 def game_over_state(root):
     global  first_start, score
-    if lsr.in_tt(score):
-        root = save_record(root)
+
     gos = True
     first_start = False
     root.blit(load_img.get_img(load_img.Screens.game_over), (0, 0))
+    if lsr.in_tt(score):
+        root = save_record(root)
     quit_rect = load_img.get_img(load_img.Buttons.quit).get_rect()
     quit_rect.topleft = (200, 600)
     try_rect = load_img.get_img(load_img.Buttons.try_again).get_rect()
