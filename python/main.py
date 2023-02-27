@@ -70,7 +70,6 @@ class Rectangle:
         self.height = 60
         self.rect = (self.x, self.y, self.width, self.height)
         root.blit(load_img.get_img(load_img.Tiles.blank), self.rect)
-        self.sprite = load_img.get_img(load_img.Tiles.yellow)
 
     def draw(self, root, sprite, clear=False, falling=True):
         if not self.is_full:
@@ -119,7 +118,20 @@ my_font = pygame.font.SysFont('Arial', 30)
 load_img.load()
 
 # GLOBAL VARIABLES
-
+colors = [
+    (255, 255, 0),          # 0
+    (0, 255, 0),            # 1
+    (0, 0, 255),            # 2
+    (255, 0, 0),            # 3
+    (163, 73, 164),         # 4
+    (0, 64, 0),             # 5
+    (128, 128, 0),          # 6
+    (255, 128, 255),        # 7
+    (0, 128, 128),          # 8
+    (128, 128, 192)         # 9
+]
+sprites = []
+cur_color = 0
 screen_size = (1000, 1030)
 game_rect = (600, 1020)
 borders = 5
@@ -168,32 +180,33 @@ def layout_init(root):
 
 
 def next_block(root):
+    global sprites
     i = rnd.randint(0, 6)
     match i:
         case 0:
             block = copy.deepcopy(Block.Q_Block.value)
-            color = load_img.get_img(load_img.Tiles.yellow)
+            color = sprites[0]
         case 1:
             block = copy.deepcopy(Block.I_Block.value)
-            color = load_img.get_img(load_img.Tiles.light_blue)
+            color = sprites[1]
         case 2:
             block = copy.deepcopy(Block.T_Block.value)
-            color = load_img.get_img(load_img.Tiles.green)
+            color = sprites[2]
         case 3:
             block = copy.deepcopy(Block.L1_Block.value)
-            color = load_img.get_img(load_img.Tiles.blue)
+            color = sprites[3]
         case 4:
             block = copy.deepcopy(Block.L2_Block.value)
-            color = load_img.get_img(load_img.Tiles.orange)
+            color = sprites[4]
         case 5:
             block = copy.deepcopy(Block.Z1_Block.value)
-            color = load_img.get_img(load_img.Tiles.red)
+            color = sprites[5]
         case 6:
             block = copy.deepcopy(Block.Z2_Block.value)
-            color = load_img.get_img(load_img.Tiles.light_purple)
+            color = sprites[6]
         case _:
             block = copy.deepcopy(Block.Q_Block.value)
-            color = load_img.get_img(load_img.Tiles.yellow)
+            color = sprites[0]
 
     next_b = [block, color]
 
@@ -338,8 +351,10 @@ def delete_ls(line, root):
                 except IndexError:
                     pass
 
-    if score - last_score > 75000:
+    if score - last_score > 25000:
+        change_color()
         delay -= 0.01
+        last_score = score
     return root
 
 
@@ -430,8 +445,6 @@ def see_records(root):
         root.blit(txt_surface, (515, 122 + y * 51))
 
     while True:
-        if pygame.mouse.get_pressed()[0]:
-            print(pygame.mouse.get_pos())
         pygame.display.update()
 
         for event in pygame.event.get():
@@ -623,8 +636,22 @@ def score_disp(root):
     root.blit(txt_surface,(650, 518))
     return root
 
+
+def change_color():
+    global cur_color, sprites
+    sprites.clear()
+    cur_color +=1
+
+    for i in range(0, 7):
+        z = i + cur_color
+        if z > len(colors) - 1:
+            z -= (len(colors) - 1)
+        sprites.append(load_img.change_color(colors[z], i))
+    return
+
+
 def init():                                                                 # added init so we can call main() again
-    global screen_size, game_rect, borders, running, recs, score, delay, last_score
+    global screen_size, game_rect, borders, running, recs, score, delay, last_score, cur_color
     screen_size = (1000, 1030)
     game_rect = (600, 1020)
     borders = 5
@@ -632,7 +659,10 @@ def init():                                                                 # ad
     score = 0
     last_score = 0
     delay = 0.3
+    cur_color = 0
+
     recs = []
+    change_color()
 
 
 # MAIN
