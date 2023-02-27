@@ -10,10 +10,10 @@ from enum import Enum
 
 class Block(Enum):
     T_Block = [
-        [[0, 4], [1, 4], [2, 0 + 4], [1, 1 + 4]],               # normal
-        [[1, 4], [1, 5], [1, 2 + 4], [0, 1 + 4]],               # 1 x r | 2 x l
-        [[1, 5], [0, 6], [1, 2 + 4], [2, 2 + 4]],               # 2 x r | 2 x l
-        [[0, 4], [0, 5], [1, 1 + 4], [0, 2 + 4]]                # 3 x r | 1 x l
+        [[0, 0 + 4], [1, 0 + 4], [2, 0 + 4], [1, 1 + 4]],        # normal
+        [[1, 0 + 4], [1, 1 + 4], [1, 2 + 4], [0, 1 + 4]],        # 1 x r | 2 x l
+        [[1, 1 + 4], [0, 2 + 4], [1, 2 + 4], [2, 2 + 4]],        # 2 x r | 2 x l
+        [[0, 0 + 4], [0, 1 + 4], [1, 1 + 4], [0, 2 + 4]]         # 3 x r | 1 x l
     ]
 
     I_Block = [
@@ -564,6 +564,9 @@ def starting_state(root):
                     pygame.time.delay(100)
                     root = see_records(root)
                     root.blit(load_img.get_img(load_img.Screens.starting), (0, 0))
+                    root.blit(load_img.get_img(load_img.Buttons.quit), (quit_rect.x, quit_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.start), (start_rect.x, start_rect.y))
+                    root.blit(load_img.get_img(load_img.Buttons.records), (record_rect.x, record_rect.y))
 
             if event.type == pygame.MOUSEMOTION:    # we check for mouse movement
                 pos = pygame.mouse.get_pos()
