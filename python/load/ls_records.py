@@ -31,12 +31,12 @@ def load():
 
 def in_tt(score):
     placement = load()
-    if len(placement) < 20:
+    if len(placement) < 15:
         return True
 
     for s, place in enumerate(placement):
-        if place[1] < score:
-            if s < 20:
+        if int(place[1]) < int(score):
+            if s < 15:
                 return True
             break
     return False
@@ -44,12 +44,16 @@ def in_tt(score):
 
 def save(score, name):
     placement = load()
+    placed = False
 
     for s, place in enumerate(placement):
-
         if int(place[1]) < score:
             placement.insert(s, [str(name), str(score)])
+            placed = True
             break
+
+    if not placed:
+        placement.append([str(name), str(score)])
 
     if len(placement) == 0:
         placement.append([str(name), str(score)])
